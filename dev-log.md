@@ -18,3 +18,12 @@ Connected root_agent to my calendar with API call function
 The agent can now fetch my next 10 upcoming calendar events
 
 25/11/25
+
+Created Math function tools
+Initialised multi-agent architecture
+Created setup file for Google Calendar API configure_google_calendar_api.py
+Installed dateparser packages- pip install dateparser
+Created time-utility agent and started on logic for time-based calculations
+Modularised the Google Calendar API token logic
+
+26/11/25
