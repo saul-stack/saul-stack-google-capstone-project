@@ -1,7 +1,7 @@
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
 
-from .calendar_tools import get_schedule
+from .utils.calendar_tools import get_schedule
 
 get_schedule = FunctionTool(get_schedule)
 
