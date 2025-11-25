@@ -11,17 +11,14 @@ from googleapiclient.errors import HttpError
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 
-def main():
-  """Shows basic usage of the Google Calendar API.
-  Prints the start and name of the next 10 events on the user's calendar.
-  """
+def get_schedule() -> dict:
+    
+  """Gets the upcoming events in the calendar"""
+
   creds = None
-  # The file token.json stores the user's access and refresh tokens, and is
-  # created automatically when the authorization flow completes for the first
-  # time.
+  
   if os.path.exists("token.json"):
     creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-  # If there are no (valid) credentials available, let the user log in.
   if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
       creds.refresh(Request())
@@ -30,7 +27,6 @@ def main():
           "credentials.json", SCOPES
       )
       creds = flow.run_local_server(port=0)
-    # Save the credentials for the next run
     with open("token.json", "w") as token:
       token.write(creds.to_json())
 
@@ -54,17 +50,10 @@ def main():
     events = events_result.get("items", [])
 
     if not events:
-      print("No upcoming events found.")
-      return
-
-    # Prints the start and name of the next 10 events
-    for event in events:
-      start = event["start"].get("dateTime", event["start"].get("date"))
-      print(start, event["summary"])
+      return {"status": "success", "message" : "No upcoming events found."}
+    
+    return {"status" : "success", "events" : events}
 
   except HttpError as error:
-    print(f"An error occurred: {error}")
+      return {"status" : "error", "events" : f"An error occurred: {error}"}
 
-
-if __name__ == "__main__":
-  main()
