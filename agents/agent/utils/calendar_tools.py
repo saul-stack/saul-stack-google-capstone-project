@@ -4,6 +4,7 @@ from googleapiclient.errors import HttpError
 from .handle_credentials import get_creds
 from datetime import timezone
 from typing import Dict
+
 def get_current_date_and_time(utc: bool = False) -> Dict[str, str]:
     """
     Returns the current date and time with additional information.
