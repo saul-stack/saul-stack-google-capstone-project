@@ -2,16 +2,16 @@ from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
 
 from .utils.math_tool import math_tool
-from .utils.calendar_tools import get_schedule
+from .utils.calendar_tools import get_events
 
-get_schedule = FunctionTool(get_schedule)
+get_events = FunctionTool(get_events)
 math_tool = FunctionTool(math_tool)
 
 
 calendar_interaction_agent = Agent(
     name="calendar_interaction_agent",
     description="Interact with the user's calendar",
-    tools=[get_schedule]
+    tools=[get_events]
 )
 
 events_analyser_agent = Agent(

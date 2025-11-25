@@ -3,8 +3,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from .handle_credentials import get_creds
 
-def get_schedule() -> dict:
-    """Gets the upcoming events in the calendar"""
+def get_events() -> dict:
+    """Gets the upcoming events in the calendar
 
     try:
         creds = get_creds()
