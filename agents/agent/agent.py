@@ -1,9 +1,11 @@
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
 
+from .utils.math_tool import math_tool
 from .utils.calendar_tools import get_schedule
 
 get_schedule = FunctionTool(get_schedule)
+math_tool = FunctionTool(math_tool)
 
 
 calendar_interaction_agent = Agent(
@@ -12,10 +14,16 @@ calendar_interaction_agent = Agent(
     tools=[get_schedule]
 )
 
+events_analyser_agent = Agent(
+    name="events_analyser_agent",
+    description="You will receive a list of events as input. Each event has start and end times. Your task is to calculate requested event metrics such as event duration. Use the math_tool for calculations.",
+    tools=[math_tool]
+)
+
 calendar_agent_team = Agent(
     name="calendar_agent_team",
     description="Manage the user's calendar and events",
-    sub_agents=[calendar_interaction_agent],
+    sub_agents=[calendar_interaction_agent, events_analyser_agent]
 )
 
 root_agent = Agent(
