@@ -40,7 +40,7 @@ def main():
             creds.refresh(Request())
         else:
             if not os.path.exists(CREDENTIALS_PATH):
-                print(f"Error: /setup/credentials.json not found. Cannot authenticate.")
+                print(f"Error: setup/credentials.json not found. Cannot authenticate.")
                 sys.exit(1)
 
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
