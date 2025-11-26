@@ -11,7 +11,7 @@ class ToolResult(TypedDict):
 
 class DateTimeDict(TypedDict):
     timestamp: datetime.datetime
-    status: str
+    time_google_calendar: str
     time_iso: str
     timezone: str
     day_number: str
