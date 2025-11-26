@@ -67,4 +67,17 @@ def math_tool(expression: str) -> float:
 
     return float(result)
 
+def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
+    """
+    Converts a datetime object into a structured dictionary of relvant fields.
+    """
 
+    return {
+        "timestamp": timestamp,
+        "time_iso": timestamp.isoformat(),
+        "day_number": str(timestamp.day),
+        "day_name": timestamp.strftime("%A"),
+        "month_name": timestamp.strftime("%B"),
+        "year": str(timestamp.year),
+        "timezone": str(timestamp.tzinfo),
+    }
