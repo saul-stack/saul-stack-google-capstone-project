@@ -43,6 +43,39 @@ def get_current_date_and_time(utc: bool = False) -> DateTimeDict:
     result = format_to_datetime_dict(now)
     return result
 
+def get_relative_date_and_time(base_timestamp: Optional[str] = None, delta: str = None) -> DateTimeDict:
+    """
+    Calculate a date/time given a time delta relative to an optional base timestamp.
+
+    Returns:
+        DateTimeDict: Structured dictionary with datetime metadata:
+            - timestamp: datetime object
+            - time_iso: ISO 8601 string
+            - timezone: timezone info
+            - day_number, day_name, month_name, year
+    """
+
+    if delta is None:
+        raise ValueError("No time delta provided")
+
+    # Determine base datetime
+    if base_timestamp is None:
+        base_dt = get_current_date_and_time()["timestamp"]
+    else:
+        if isinstance(base_timestamp, datetime.datetime):
+            base_dt = base_timestamp
+        else:
+            base_dt = dateparser.parse(base_timestamp)
+            if base_dt is None:
+                raise ValueError(f"Could not parse base timestamp: {base_timestamp}")
+
+    # Calculate relative datetime
+    relative_dt = dateparser.parse(delta, settings={"RELATIVE_BASE": base_dt})
+    if relative_dt is None:
+        raise ValueError(f"Could not parse delta: {delta}")
+
+    return format_to_datetime_dict(relative_dt)
+
 ## Validators
 def is_datetime_object(x: Any) -> bool:
     """
