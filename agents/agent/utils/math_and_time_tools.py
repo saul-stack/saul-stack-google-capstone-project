@@ -50,7 +50,7 @@ def format_to_datetime(timestamp = None) -> Optional[datetime.datetime]:
 
 def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
     """
-    Converts a datetime object into a structured dictionary of relvant fields.
+    Converts a datetime object into a structured dictionary of relevant fields.
     """
 
     return {
