@@ -1,7 +1,19 @@
 import math
 import datetime
-from typing import Optional
+from typing import Optional, Any
 import dateparser
+
+def is_datetime_object(x: Any) -> bool:
+    """
+    Check if the given value is a datetime.datetime object.
+
+    Args:
+        x: Any Python variable or object.
+
+    Returns:
+        bool: True if value is a datetime.datetime object, False otherwise.
+    """
+    return isinstance(x, datetime.datetime)
 
 def format_to_datetime(timestamp = None) -> Optional[datetime.datetime]:
     """
