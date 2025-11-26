@@ -4,7 +4,6 @@ from typing import Optional, Any, Dict, TypedDict, Literal, NotRequired
 import dateparser
 
 ## Class Definitions
-
 class ToolResult(TypedDict):
     status: Literal["success", "error"]
     message: NotRequired[str]
