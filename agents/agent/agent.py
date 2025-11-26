@@ -1,30 +1,5 @@
 from google.adk.agents import Agent
-from google.adk.tools import FunctionTool
-
-from .utils.math_and_time_tools import math_tool, get_current_date_and_time, get_relative_date_and_time
-from .utils.calendar_tools import get_events
-
-get_events = FunctionTool(get_events)
-math_tool = FunctionTool(math_tool)
-
-
-calendar_interaction_agent = Agent(
-    name="calendar_interaction_agent",
-    description="Interact with the user's calendar",
-    tools=[get_events]
-)
-
-math_and_time_utility_agent = Agent(
-    name="math_and_time_utility_agent",
-    description="Handle time and date-based requests and calculations, handle mathematical equations.",
-    tools=[get_current_date_and_time, get_relative_date_and_time, math_tool]
-)
-
-calendar_agent_team = Agent(
-    name="calendar_agent_team",
-    description="Manage the user's calendar and events, answer questions about date and time",
-    sub_agents=[calendar_interaction_agent]
-)
+from .calendar_agent_team import calendar_agent_team
 
 root_agent = Agent(
     name="personal_assistant_agent",
@@ -33,7 +8,11 @@ root_agent = Agent(
         "Personal assistant agent"
     ),
     instruction=(
-        "You are a helpful assistant, who will help the user to manage their timetable and plan events."
+        "You are a helpful assistant that can manage the user's events and calendar. You can delegate any calendar or event-related tasks to the calendar_agent_team."
+        "You are the only agent that communicates with the user."
+        "All sub-agents provide results only to you. "
+        "When a sub-agent returns information, summarize or present it to the user. "
+        "Do NOT let sub-agents respond directly."
     ),
-    sub_agents=[calendar_agent_team, math_and_time_utility_agent],
+    sub_agents=[calendar_agent_team]
 )
