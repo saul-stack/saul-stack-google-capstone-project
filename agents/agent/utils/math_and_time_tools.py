@@ -46,14 +46,8 @@ def get_current_date_and_time(utc: bool = False) -> DateTimeDict:
 
 def get_relative_date_and_time(base_timestamp: Optional[str] = None, delta: str = None) -> DateTimeDict:
     """
-    Calculate a date/time given a time delta relative to an optional base timestamp.
-
-    Returns:
-        DateTimeDict: Structured dictionary with datetime metadata:
-            - timestamp: datetime object
-            - time_iso: ISO 8601 string
-            - timezone: timezone info
-            - day_number, day_name, month_name, year
+    Calculate a date/time given a time delta relative to an optional base timestamp. Base timestamp defaults to current time if not provided
+    Supports ISO 8601 durations (e.g., 'P1D', 'PT2H', 'P-1D') and natural language deltas.
     """
 
     if delta is None:
@@ -61,21 +55,33 @@ def get_relative_date_and_time(base_timestamp: Optional[str] = None, delta: str 
 
     # Determine base datetime
     if base_timestamp is None:
-        base_dt = get_current_date_and_time()["timestamp"]
+        base_timestamp = get_current_date_and_time()["timestamp"]
+        if isinstance(base_timestamp, str):
+            base_timestamp = dateparser.parse(base_timestamp)
+            if base_timestamp is None:
+                raise ValueError(f"Could not parse timestamp from get_current_date_and_time(): {base_timestamp}")
     else:
-        if isinstance(base_timestamp, datetime.datetime):
-            base_dt = base_timestamp
-        else:
-            base_dt = dateparser.parse(base_timestamp)
-            if base_dt is None:
+        if not isinstance(base_timestamp, datetime.datetime):
+            base_timestamp = dateparser.parse(base_timestamp)
+            if base_timestamp is None:
                 raise ValueError(f"Could not parse base timestamp: {base_timestamp}")
 
-    # Calculate relative datetime
-    relative_dt = dateparser.parse(delta, settings={"RELATIVE_BASE": base_dt})
-    if relative_dt is None:
-        raise ValueError(f"Could not parse delta: {delta}")
+    if base_timestamp.tzinfo is None:
+        base_timestamp = base_timestamp.replace(tzinfo=datetime.timezone.utc)
 
-    return format_to_datetime_dict(relative_dt)
+    # if iso_8601 time delta
+    if delta.startswith("P") or delta.startswith("p"):
+        try:
+            duration = parse_iso_duration(delta)
+            relative_timestamp = base_timestamp + duration
+        except Exception:
+            raise ValueError(f"Could not parse ISO 8601 duration: {delta}")
+    else:
+        relative_timestamp = dateparser.parse(delta, settings={"RELATIVE_BASE": base_timestamp})
+        if relative_timestamp is None:
+            raise ValueError(f"Could not parse delta: {delta}")
+
+    return format_to_datetime_dict(relative_timestamp)
 
 ## Validators
 def is_datetime_object(x: Any) -> bool:
