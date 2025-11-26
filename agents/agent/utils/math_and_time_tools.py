@@ -1,4 +1,27 @@
 import math
+import datetime
+from typing import Optional
+import dateparser
+
+def format_to_datetime(timestamp = None) -> Optional[datetime.datetime]:
+    """
+    Parses a timestamp and formats it to a datetime object using dateparser.
+
+    Args:
+        timestamp: date/time expression.
+
+    Returns:
+        datetime.datetime | None: Parsed datetime object, or None if parsing fails.
+    """
+
+    if timestamp is None:
+        return None
+
+    parsed_timestamp = dateparser.parse(timestamp)
+    if parsed_timestamp is None:
+        return None
+
+    return parsed_timestamp
 
 def math_tool(expression: str) -> float:
 
