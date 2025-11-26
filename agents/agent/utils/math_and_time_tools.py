@@ -113,6 +113,7 @@ def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
 
     return {
         "timestamp": timestamp,
+        "time_google_calendar": format_time_to_calendar(timestamp.isoformat()),
         "time_iso": timestamp.isoformat(),
         "day_number": str(timestamp.day),
         "day_name": timestamp.strftime("%A"),
