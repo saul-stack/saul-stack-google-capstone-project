@@ -2,6 +2,7 @@ import math
 import datetime
 from typing import Optional, Any, TypedDict, Literal, NotRequired
 import dateparser
+import isodate
 
 ## Class Definitions
 class ToolResult(TypedDict):
@@ -89,7 +90,7 @@ def is_datetime_object(x: Any) -> bool:
     """
     return isinstance(x, datetime.datetime)
 
-## Formatters
+## Formatters/parsers
 def format_time_to_calendar(timestamp:str = None) -> str:
 
     if timestamp is None:
@@ -121,6 +122,33 @@ def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
         "year": str(timestamp.year),
         "timezone": str(timestamp.tzinfo),
     }
+
+def parse_iso_duration(time_delta: str) -> datetime.timedelta:
+    """
+    Parse an ISO 8601 duration string including a negative duration (e.g. P-1D).
+    Returns a datetime.timedelta.
+    """
+    if not time_delta or not (time_delta.startswith("P") or time_delta.startswith("p")):
+        raise ValueError("Not an ISO 8601 duration")
+
+    delta_is_negative = False
+
+    if len(time_delta) > 1 and time_delta[1] == "-":
+        delta_is_negative = True
+        time_delta = "P" + time_delta[2:]
+
+    duration = isodate.parse_duration(time_delta)
+
+    if not isinstance(duration, datetime.timedelta):
+        duration = datetime.timedelta(
+            days=duration.days,
+            seconds=duration.totalseconds() % 86400
+        )
+
+    if delta_is_negative:
+        duration = -duration
+
+    return duration
 
 ## Other Utilities
 def math_tool(expression: str) -> float:
