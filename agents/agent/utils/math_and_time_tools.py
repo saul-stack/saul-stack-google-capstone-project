@@ -3,6 +3,7 @@ import datetime
 from typing import Optional, Any, TypedDict
 import dateparser
 
+## Class Definitions
 class DateTimeDict(TypedDict):
     timestamp: datetime.datetime
     status: str
@@ -13,6 +14,7 @@ class DateTimeDict(TypedDict):
     month_name: str
     year: str
 
+## Validators
 def is_datetime_object(x: Any) -> bool:
     """
     Check if the given value is a datetime.datetime object.
@@ -25,6 +27,7 @@ def is_datetime_object(x: Any) -> bool:
     """
     return isinstance(x, datetime.datetime)
 
+## Formatters
 def format_to_datetime(timestamp = None) -> Optional[datetime.datetime]:
     """
     Parses a timestamp and formats it to a datetime object using dateparser.
@@ -45,6 +48,22 @@ def format_to_datetime(timestamp = None) -> Optional[datetime.datetime]:
 
     return parsed_timestamp
 
+def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
+    """
+    Converts a datetime object into a structured dictionary of relvant fields.
+    """
+
+    return {
+        "timestamp": timestamp,
+        "time_iso": timestamp.isoformat(),
+        "day_number": str(timestamp.day),
+        "day_name": timestamp.strftime("%A"),
+        "month_name": timestamp.strftime("%B"),
+        "year": str(timestamp.year),
+        "timezone": str(timestamp.tzinfo),
+    }
+
+## Other Utilities
 def math_tool(expression: str) -> float:
 
     """
@@ -66,18 +85,3 @@ def math_tool(expression: str) -> float:
     result = eval(expression, blocked_builtins, allowed_math_functions)
 
     return float(result)
-
-def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
-    """
-    Converts a datetime object into a structured dictionary of relvant fields.
-    """
-
-    return {
-        "timestamp": timestamp,
-        "time_iso": timestamp.isoformat(),
-        "day_number": str(timestamp.day),
-        "day_name": timestamp.strftime("%A"),
-        "month_name": timestamp.strftime("%B"),
-        "year": str(timestamp.year),
-        "timezone": str(timestamp.tzinfo),
-    }
