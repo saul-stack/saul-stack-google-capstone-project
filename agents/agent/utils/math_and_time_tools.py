@@ -1,7 +1,17 @@
 import math
 import datetime
-from typing import Optional, Any
+from typing import Optional, Any, TypedDict
 import dateparser
+
+class DateTimeDict(TypedDict):
+    timestamp: datetime.datetime
+    status: str
+    time_iso: str
+    timezone: str
+    day_number: str
+    day_name: str
+    month_name: str
+    year: str
 
 def is_datetime_object(x: Any) -> bool:
     """
@@ -56,3 +66,5 @@ def math_tool(expression: str) -> float:
     result = eval(expression, blocked_builtins, allowed_math_functions)
 
     return float(result)
+
+
