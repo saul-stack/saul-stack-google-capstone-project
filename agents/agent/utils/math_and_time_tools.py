@@ -1,9 +1,15 @@
 import math
 import datetime
-from typing import Optional, Any, TypedDict
+from typing import Optional, Any, Dict, TypedDict, Literal, NotRequired
 import dateparser
 
 ## Class Definitions
+
+class ToolResult(TypedDict):
+    status: Literal["success", "error"]
+    message: NotRequired[str]
+    body: NotRequired[Any]
+
 class DateTimeDict(TypedDict):
     timestamp: datetime.datetime
     status: str
