@@ -36,7 +36,7 @@ def get_events(max_results: int=10) -> dict:
     """Gets the upcoming events in the calendar
 
     Args:
-        max_results: the number of events to fetch.
+        max_results (int): the max number of events to fetch.
 
     Returns:
         A dictionary containing upcoming events and success message.
