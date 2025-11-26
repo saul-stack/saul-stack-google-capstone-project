@@ -90,16 +90,7 @@ def is_datetime_object(x: Any) -> bool:
     return isinstance(x, datetime.datetime)
 
 ## Formatters
-def format_to_datetime(timestamp = None) -> Optional[datetime.datetime]:
-    """
-    Parses a timestamp and formats it to a datetime object using dateparser.
-
-    Args:
-        timestamp: date/time expression.
-
-    Returns:
-        datetime.datetime | None: Parsed datetime object, or None if parsing fails.
-    """
+def format_time_to_calendar(timestamp:str = None) -> str:
 
     if timestamp is None:
         return None
@@ -107,6 +98,11 @@ def format_to_datetime(timestamp = None) -> Optional[datetime.datetime]:
     parsed_timestamp = dateparser.parse(timestamp)
     if parsed_timestamp is None:
         return None
+
+    if parsed_timestamp.tzinfo is None:
+        parsed_timestamp = parsed_timestamp.replace(tzinfo=datetime.timezone.utc)
+
+    parsed_timestamp = parsed_timestamp.isoformat(timespec="microseconds").replace("+00:00", "Z")
 
     return parsed_timestamp
 
