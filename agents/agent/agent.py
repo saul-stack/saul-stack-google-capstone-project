@@ -14,22 +14,16 @@ calendar_interaction_agent = Agent(
     tools=[get_events]
 )
 
-time_utility_agent = Agent(
-    name="time_utility_agent",
-    description="Get the current date and time, calculate date and time based questions",
-    tools=[get_current_date_and_time]
-)
-
-events_analyser_agent = Agent(
-    name="events_analyser_agent",
-    description="You will receive a list of events as input. Each event has start and end times. Your task is to calculate requested event metrics such as event duration. Use the math_tool for calculations.",
-    tools=[math_tool]
+math_and_time_utility_agent = Agent(
+    name="math_and_time_utility_agent",
+    description="Handle time and date-based requests and calculations, handle mathematical equations.",
+    tools=[get_current_date_and_time, get_relative_date_and_time, math_tool]
 )
 
 calendar_agent_team = Agent(
     name="calendar_agent_team",
     description="Manage the user's calendar and events, answer questions about date and time",
-    sub_agents=[calendar_interaction_agent, events_analyser_agent, time_utility_agent]
+    sub_agents=[calendar_interaction_agent]
 )
 
 root_agent = Agent(
@@ -41,5 +35,5 @@ root_agent = Agent(
     instruction=(
         "You are a helpful assistant, who will help the user to manage their timetable and plan events."
     ),
-    sub_agents=[calendar_agent_team],
+    sub_agents=[calendar_agent_team, math_and_time_utility_agent],
 )
