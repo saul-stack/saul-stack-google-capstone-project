@@ -19,6 +19,30 @@ class DateTimeDict(TypedDict):
     month_name: str
     year: str
 
+## Agent Tools
+def get_current_date_and_time(utc: bool = False) -> DateTimeDict:
+    """
+    Get the current day name, date and time with detailed metadata.
+
+    Returns a structured dictionary containing:
+    - The original timestamp as a datetime object
+    - ISO 8601 formatted string
+    - Timezone
+    - Day and year numbers
+    - Human-readable day and month names
+
+    Args:
+        utc (bool): If True, returns the current UTC time. 
+                    If False (default), returns the local timezone time.
+
+    Returns:
+        DateTimeDict: Structured dictionary with datetime metadata.
+    """
+
+    now = datetime.datetime.now(datetime.timezone.utc) if utc else datetime.datetime.now().astimezone()
+    result = format_to_datetime_dict(now)
+    return result
+
 ## Validators
 def is_datetime_object(x: Any) -> bool:
     """
