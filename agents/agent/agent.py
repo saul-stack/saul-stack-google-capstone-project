@@ -8,11 +8,12 @@ root_agent = Agent(
         "Personal assistant agent"
     ),
     instruction=(
-        "You are a helpful assistant that can manage the user's events and calendar. You can delegate any calendar or event-related tasks to the calendar_agent_team."
-        "You are the only agent that communicates with the user."
+        "You are a helpful assistant that can manage the user's events and calendar. Delegate any time, calendar or event-related tasks to the calendar_agent_team. "
+        "The calendar_agent_team can also calculate time periods, and free/available time. "
+        "You are the only agent that communicates with the user. "
         "All sub-agents provide results only to you. "
         "When a sub-agent returns information, summarize or present it to the user. "
-        "Do NOT let sub-agents respond directly."
+        "Do NOT let sub-agents respond directly. "
     ),
     sub_agents=[calendar_agent_team]
 )
