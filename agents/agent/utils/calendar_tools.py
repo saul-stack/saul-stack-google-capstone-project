@@ -40,7 +40,7 @@ def get_events(start_time = None, end_time = None, max_results: int=10) -> dict:
         }
 
         if end_time is not None:
-            params["timeMax"] = format_time_to_calendar(end_time)   
+            params["timeMax"] = format_time_to_calendar(end_time)
 
         events_result = (
             service.events()
