@@ -56,6 +56,99 @@ def get_events(start_time = None, end_time = None, max_results: int=10) -> dict:
     except HttpError as error:
         return {"status": "error", "events": f"An error occurred: {error}"}
 
+def schedule_new_event(params: dict) -> dict:
+    
+    """
+    Description: schedule an event in the Google Calendar.
+    
+    Args:
+        params (dict): Dictionary of event parameters.
+            Required:
+                - event_title (str): Title of the event
+                - start_datetime (str): Start date/time in ISO format or natural language
+
+            Optional:
+                - end_datetime (str): End date/time, defaults to 1 hour after start
+                - location (str)
+                - description (str)
+                - recurrence (list of str)
+                - attendees (list of str)
+                - reminders (dict)
+    
+    Returns:
+        dict: Response from Google Calendar API or error info.
+    """
+
+    def format_new_event(params: dict) -> dict:
+
+        required_keys = ['event_title', 'start_datetime']
+        missing_keys = [key for key in required_keys if key not in params]
+        if missing_keys:
+            return {"status": "error", "message": f"Missing required parameters: {', '.join(missing_keys)}"}
+
+        start_time = format_time_to_calendar(params['start_datetime'])
+        if start_time is None:
+            return {"status": "error", "message": f"Could not parse start_datetime: {params['start_datetime']}"}
+
+        end_time = format_time_to_calendar(params.get('end_datetime')) if params.get('end_datetime') else get_relative_date_and_time(params['start_datetime'], "+ 1 hour").get("time_google_calendar")
+        event_title = params.get('event_title').title()
+        timezone = get_local_timezone()
+        description = params.get('description') or ''
+
+        attendees = params.get("attendees")
+
+        attendee_email_addresses = []
+        attendee_names = []
+
+        if attendees is not None:
+
+            for attendee in attendees:
+
+                if is_email_address(attendee):
+                    attendee_email_addresses.append({'email': attendee})
+
+                attendee_names.append(attendee)
+
+            if len(attendee_names) > 0:
+                description += "With"
+                description += " " + ", ".join(attendee_names)
+
+        formatted_event = {
+            'summary': event_title,
+            'location': params.get('location'),
+            'description': description,
+            'start': {
+                'dateTime': start_time,
+                'timeZone': timezone,
+            },
+            'end': {
+                'dateTime': end_time,
+                'timeZone': timezone,
+            },
+            'recurrence': params.get('recurrence', []),
+            'attendees': attendee_email_addresses,
+            'reminders': params.get('reminders', {'useDefault': True, 'overrides': []}),
+        }
+
+        return formatted_event
+
+
+    def add_event_to_calendar(event):
+        try:
+            creds = get_creds()
+        except Exception as e:
+            return {"status": "error", "message": f"Cannot get credentials: {e}"}
+
+        try:
+            service = build("calendar", "v3", credentials=creds)
+            created_event = service.events().insert(calendarId='primary', body=event).execute()
+            return {"status": "success", "event": created_event}
+        except HttpError as error:
+            return {"status": "error", "message": f"An error occurred: {error}"}
+    
+    formatted_event = format_new_event(params)
+    add_event_to_calendar(formatted_event)
+
 def is_email_address(x: str) -> bool:
     if not x or not isinstance(x, str):
         return False
