@@ -208,4 +208,3 @@ def calculate_time_duration_hours(event):
 
 def get_local_timezone() -> str:
     return datetime.datetime.now().astimezone().tzname() or "UTC"
-
