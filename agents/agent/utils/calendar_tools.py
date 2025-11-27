@@ -1,7 +1,7 @@
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from .handle_credentials import get_creds
-from .math_and_time_tools import format_time_to_calendar, get_current_date_and_time
+import re
 
 def get_events(start_time = None, end_time = None, max_results: int=10) -> dict:
 
@@ -55,3 +55,10 @@ def get_events(start_time = None, end_time = None, max_results: int=10) -> dict:
 
     except HttpError as error:
         return {"status": "error", "events": f"An error occurred: {error}"}
+
+def is_email_address(x: str) -> bool:
+    if not x or not isinstance(x, str):
+        return False
+
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return bool(re.match(pattern, x))
