@@ -178,6 +178,34 @@ def math_tool(expression: str) -> float:
     result = eval(expression, blocked_builtins, allowed_math_functions)
 
     return float(result)
+
+def calculate_time_duration_hours(event):
+    """
+    Calculate time duration in hours from a Google Calendar–style event dict.
+
+    Returns:
+        float: duration in hours (e.g., 1.5)
+        None: if invalid or missing timestamps
+    """
+
+    try:
+        start_str = event["start"]["dateTime"]
+        end_str = event["end"]["dateTime"]
+    except (KeyError, TypeError):
+        return None
+
+    try:
+        start_dt = datetime.datetime.fromisoformat(start_str)
+        end_dt = datetime.datetime.fromisoformat(end_str)
+        
+    except ValueError:
+        return None
+
+    duration = end_dt - start_dt
+    duration_hours = duration.total_seconds() / 3600.0
+
+    return duration_hours
+
 def get_local_timezone() -> str:
     return datetime.datetime.now().astimezone().tzname() or "UTC"
 
