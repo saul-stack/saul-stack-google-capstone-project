@@ -178,3 +178,6 @@ def math_tool(expression: str) -> float:
     result = eval(expression, blocked_builtins, allowed_math_functions)
 
     return float(result)
+def get_local_timezone() -> str:
+    return datetime.datetime.now().astimezone().tzname() or "UTC"
+
