@@ -27,3 +27,25 @@ Created time-utility agent and started on logic for time-based calculations
 Modularised the Google Calendar API token logic
 
 26/11/25
+Added parse_iso_duration function
+Updated get_relative_date_and_time to handle ISO 8601 durations
+Added format_to_datetime, format_to_datetime_dict, and is_datetime_object
+Updated DateTimeDict class and related formatting functions
+Created get_current_date_and_time and get_relative_date_and_time
+Updated tool definitions (including get_events)
+
+Updated agent.py sub-agent structure and imports
+Created ToolResult class
+Removed unused imports and whitespace
+Renamed math_tool.py → math_and_time_tools.py
+Removed get_current_date_and_time from calendar_tools.py
+General cleanup, fixes, and organization improvements
+
+Created schedule_new_event function
+Changed scopes to remove .readonly suffix
+Updated agent instructions
+
+Pip install isodate
+Started reworking architecture
+
+The agent can now get event within a given timeframe, and schedule a new event
