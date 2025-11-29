@@ -49,3 +49,24 @@ Pip install isodate
 Started reworking architecture
 
 The agent can now get event within a given timeframe, and schedule a new event
+
+
+27/11/25
+
+When asking to schedule a meeting with people, they are added to the title and description of the event.
+If the person is an email address, they are added to attendees. 
+
+Implemented ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS environment variable
+created get_local_timezone function
+created is_email_address function
+created schedule_new_event function
+updated caledar_agent_team agent definitions and instructions
+created calculate_time_duration_hours function
+updated root_agent instructions
+
+
+
+
+
+
+
