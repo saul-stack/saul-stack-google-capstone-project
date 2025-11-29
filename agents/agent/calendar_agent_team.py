@@ -1,18 +1,21 @@
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
 
-from .utils.math_and_time_tools import math_tool, get_current_date_and_time, get_relative_date_and_time, calculate_event_duration_hours
-from .utils.calendar_tools import get_events, schedule_new_event
+from .utils.math_and_time_tools import (
+    math_tool, get_current_date_and_time, get_relative_date_and_time,
+    format_time_to_calendar, calculate_time_duration_hours
+)
+from .utils.calendar_tools import get_events, schedule_new_event, cancel_event
 
-get_events = FunctionTool(get_events)
-schedule_new_event = FunctionTool(schedule_new_event)
+get_events_tool = FunctionTool(get_events)
+schedule_new_event_tool = FunctionTool(schedule_new_event)
+cancel_event = FunctionTool(cancel_event)
+
 math_tool = FunctionTool(math_tool)
 
 math_and_time_utility_agent = Agent(
     name="math_and_time_utility_agent",
-    description=(
-        "Handle time, location, and date-based calculations, as well as mathematical equations. " 
-    ),
+    description="Handles date/time calculations and math operations.",
     instruction=(
 
         #Calculations/tool use
