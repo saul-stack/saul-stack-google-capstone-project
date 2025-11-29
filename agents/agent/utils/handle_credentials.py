@@ -1,46 +1,55 @@
 import os
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+from pathlib import Path
 
-CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-TOKEN_PATH = os.path.join(CURRENT_DIRECTORY, "../../../setup/token.json")
+USE_SERVICE_ACCOUNT = os.getenv("USE_SERVICE_ACCOUNT", "false").lower() == "true"
 
-def configure_scopes():
-    # Default to read-only calendar access
-    ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS = os.getenv("ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS", "false").lower() == 'true'
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
+CURRENT_DIRECTORY = Path(__file__).resolve().parent
 
-    SCOPES = ["https://www.googleapis.com/auth/calendar"]
+if USE_SERVICE_ACCOUNT:
+    # ---------------- Service Account Path ----------------
+    from google.oauth2 import service_account
 
-    if ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS:
-        SCOPES = ["https://www.googleapis.com/auth/calendar"]
-    
-    return SCOPES
+    SERVICE_ACCOUNT_PATH = CURRENT_DIRECTORY / "../../../setup/test-credentials.json"
 
-SCOPES = configure_scopes()
+    def get_creds():
+        """
+        Returns Google API credentials using a service account.
+        Raises FileNotFoundError if the key file is missing.
+        """
+        if not SERVICE_ACCOUNT_PATH.exists():
+            raise FileNotFoundError(f"Service account key not found at {SERVICE_ACCOUNT_PATH}")
 
+        creds = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_PATH,
+            scopes=SCOPES
+        )
+        return creds
 
-def get_creds() -> Credentials:
-    """
-    Returns valid Google API credentials from token.json, refreshing token if necessary.
-    Raises FileNotFoundError if token.json not found, or ValueError if token is invalid/could not be refreshed.
-    """
+else:
+    # ---------------- User OAuth Path ----------------
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
 
-    if not os.path.exists(TOKEN_PATH):
-        raise FileNotFoundError("Error: setup/credentials.json not found. Cannot authenticate.")
+    TOKEN_PATH = CURRENT_DIRECTORY / "../../../setup/token.json"
 
-    creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+    def get_creds():
+        """
+        Returns valid Google API credentials from token.json, refreshing token if necessary.
+        Raises FileNotFoundError if token.json not found, or ValueError if token is invalid/could not be refreshed.
+        """
+        if not TOKEN_PATH.exists():
+            raise FileNotFoundError(f"Token not found at {TOKEN_PATH}")
 
-    if not creds.valid:
-        if creds.expired and creds.refresh_token:
-            try:
-                creds.refresh(Request())
-            except Exception as e:
-                error = (f"Error refreshing token: {e}")
-                print(error)
-                raise ValueError("Error refreshing token.")
-        else:
-            error = "Token is invalid. Please generate a new token."
-            print(error)
-            raise ValueError(error)
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
 
-    return creds
+        if not creds.valid:
+            if creds.expired and creds.refresh_token:
+                try:
+                    creds.refresh(Request())
+                except Exception as e:
+                    raise ValueError(f"Error refreshing token: {e}")
+            else:
+                raise ValueError("Token is invalid. Please generate a new token.")
+
+        return creds
