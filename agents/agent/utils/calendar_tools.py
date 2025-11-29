@@ -148,7 +148,47 @@ def schedule_new_event(params: dict) -> dict:
             return {"status": "error", "message": f"An error occurred: {error}"}
     
     formatted_event = format_new_event(params)
-    add_event_to_calendar(formatted_event)
+def cancel_event(event_id: str) -> dict:
+    """
+    Cancel (delete) an event from the user's primary Google Calendar.
+
+    Args:
+        event_id (str): The unique Google Calendar event ID.
+
+    Returns:
+        dict: Status and message about the deletion.
+    """
+
+    if not event_id:
+        return {"status": "error", "message": "Missing required parameter: event_id"}
+    try:
+        creds = get_creds()
+    except Exception as e:
+        return {"status": "error", "message": f"Cannot get credentials: {e}"}
+    try:
+        service = build("calendar", "v3", credentials=creds)
+
+        service.events().delete(
+            calendarId="primary",
+            eventId=event_id
+        ).execute()
+
+        return {
+            "status": "success",
+            "message": f"Event '{event_id}' has been cancelled successfully."
+        }
+
+    except HttpError as error:
+        return {
+            "status": "error",
+            "message": f"Failed to cancel event: {error}"
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Unexpected error: {e}"
+        }
 
 def is_email_address(x: str) -> bool:
     if not x or not isinstance(x, str):
