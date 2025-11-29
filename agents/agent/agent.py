@@ -5,6 +5,16 @@ from .calendar_agent_team import calendar_agent_team
 from .utils.weather_tools import get_current_weather
 from .utils.location_tools import get_current_location
 
+def get_current_local_weather():
+    """Gets the current, local weather"""
+    current_location = get_current_location()
+    current_coords = {"lat" : current_location["lat"], "lon" : current_location["lon"]}
+    local_weather_current = get_current_weather(current_coords)
+    return local_weather_current
+
+get_current_local_weather_tool = FunctionTool(get_current_local_weather)
+get_current_location_tool = FunctionTool(get_current_location)
+
 
 root_agent = Agent(
     name="personal_assistant_agent",
