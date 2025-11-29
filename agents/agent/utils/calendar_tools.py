@@ -148,6 +148,8 @@ def schedule_new_event(params: dict) -> dict:
             return {"status": "error", "message": f"An error occurred: {error}"}
     
     formatted_event = format_new_event(params)
+    return add_event_to_calendar(formatted_event)
+
 def cancel_event(event_id: str) -> dict:
     """
     Cancel (delete) an event from the user's primary Google Calendar.
