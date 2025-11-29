@@ -7,17 +7,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dotenv import load_dotenv
+from api_config import configure_scopes
 
-# Define the scopes
 load_dotenv()
 
-# Default to read-only calendar access
-ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS = os.getenv("ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS", "false").lower() == 'true'
-
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
-
-if ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS:
-    SCOPES = ["https://www.googleapis.com/auth/calendar"]
+# Define the scopes
+SCOPES = configure_scopes()
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
