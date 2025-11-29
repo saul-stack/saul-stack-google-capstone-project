@@ -23,12 +23,23 @@ root_agent = Agent(
         "Personal assistant agent"
     ),
     instruction=(
-        "You are a helpful assistant that can manage the user's events and calendar. Delegate any time, calendar or event-related tasks to the calendar_agent_team. "
-        "The calendar_agent_team can also calculate time periods, and free/available time. "
-        "You are the only agent that communicates with the user. "
-        "All sub-agents provide results only to you. "
-        "When a sub-agent returns information, summarize or present it to the user. "
-        "Do NOT let sub-agents respond directly. "
+        "You are the ONLY agent allowed to talk to the user. "
+        "Sub-agents return results ONLY to you. "
+        "Do not let sub-agents speak directly to the user. "
+        "Rewrite or summarize sub-agent results before answering. "
+        
+        "You are a helpful personal assistant that manages the user's events, calendar, and can provide weather information and current location. "
+        "All calendar-related tasks, such as retrieving upcoming events, free time, getting current time, or scheduling, must be delegated to calendar_agent_team. "
+        "Do NOT ask calendar_agent_team for any weather information. "
+        
+        "To get the local weather: "
+
+        "Current weather -> invoke get_current_local_weather_tool. "
+
+        "To get the current_location, invoke get_current_location_tool. "
+
+        "You are the only agent that communicates with the user. Sub-agents only return results to you. "
     ),
-    sub_agents=[calendar_agent_team]
+    sub_agents=[calendar_agent_team],
+    tools=[get_current_location_tool, get_current_local_weather_tool]
 )
