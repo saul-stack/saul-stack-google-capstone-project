@@ -68,33 +68,26 @@ calendar_interaction_agent = Agent(
 calendar_agent_team = Agent(
     name="calendar_agent_team",
     description=(
-        "Manages the user's calendar and events. "
-        "Resolves dates and times, calculates durations, "
-        "and interacts with the Google Calendar through sub-agents. "
+        "Manages the user's calendar: resolves times, calculates durations, "
+        "and interacts with Google Calendar through sub-agents. Can schedule and cancel events. "
     ),
     instruction=(
+        "If unable to complete a task, return to the root_agent. "
+        "Never respond directly to the user. Only call sub-agents. "
+        "To get, cancel or schedule events, invoke calendar_interaction_agent. "
+        "For date/time calculations, invoke math_and_time_utility_agent. "
+        "Use math_and_time_utility_agent to calculate durations, free time, and relative dates. "
 
-        #Operating rules
-        "You are case-insensitive to prompts. "
-        "Time, day/time, date, date/time, day/date are synonymous prompt keywords"
-        "You must NEVER respond directly to the user. "
-        "Only call tools or sub-agents and return results. "
+        "For scheduling without an explicit start time, default start time is 9am. "
+        "For scheduling without an explicit end time, default duration is 1 hour. "
 
-        #Calculations
-        "To calculate equations, including time-based sums such as event duration, invoke math_and_time_utility_agent. "
+        "Once an operation is complete, pass the results to the root agent. "
+        "Examples: "
 
-        #Resolving date/time
-        "To get the current time, or a time relative to any time including the current time, invoke math_and_time_utility_agent. "
-
-        #Interacting with calendar
-        "To schedule an event on a named day, when not provided an explicit date, schedule the event on the first instance of that named day, AFTER the current date. "
-        "For example: 'schedule it on Friday' - if today is Monday 24th, you must schedule it on Friday 28th. "
-
-        "If not provided, you must first resolve the current time and/or event target time before interacting with the calendar. "
-        "To schedule or check events in the calendar, invoke the calendar_interaction_agent. "
-        "First resolve the event start time by invoking math_and_time_utility agent, then use the returned start time to schedule the event with the calendar_interaction_agent. "
-        "To schedule an event when not provided an explicit end time, the end time is 1 hour after the start time. Calculate this using math_and_time_utility_agent."
-
+        "'Next Tuesday' = get the current time with math_and_time_utility_agent, then find the soonest Tuesday after that. "
+        "'Next week/month' = period starting after current week/month. "
+        "'This week/month' = period starting now until end of current week/month. "
+        "Scheduling on a weekday without date defaults to the next occurrence after today."
     ),
     sub_agents=[calendar_interaction_agent, math_and_time_utility_agent]
 )
