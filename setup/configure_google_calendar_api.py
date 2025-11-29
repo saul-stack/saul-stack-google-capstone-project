@@ -6,12 +6,15 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from dotenv import load_dotenv
+from api_config import configure_scopes
 
-
-CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+load_dotenv()
 
 # Define the scopes
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = configure_scopes()
+
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 # Paths to credentials files
 CREDENTIALS_PATH = os.path.join(CURRENT_DIRECTORY, "credentials.json")
