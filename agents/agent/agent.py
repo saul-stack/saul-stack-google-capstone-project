@@ -1,5 +1,10 @@
 from google.adk.agents import Agent
+from google.adk.tools import FunctionTool
+
 from .calendar_agent_team import calendar_agent_team
+from .utils.weather_tools import get_current_weather
+from .utils.location_tools import get_current_location
+
 
 root_agent = Agent(
     name="personal_assistant_agent",
