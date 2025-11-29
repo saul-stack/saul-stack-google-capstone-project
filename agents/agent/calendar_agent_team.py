@@ -17,24 +17,20 @@ math_and_time_utility_agent = Agent(
     name="math_and_time_utility_agent",
     description="Handles date/time calculations and math operations.",
     instruction=(
-
-        #Calculations/tool use
-        "To get the current day/date (today), use get_current_date_and_time. "
-        "To resolve a relative day/date, use get_relative_date_and_time. "
-
-        #Resolving time deltas
-        "When resolving a relative day or date using a time delta, if no base time is provided, you must first obtain the current date and time by invoking get_current_date_and_time. Then resolve the target date/time relative to this value using get_relative_date_and_time. "
-        "Unless otherwise stated, any natural-language time delta (e.g., 'in 7 days', 'in 3 hours', 'next Tuesday') must first obtain the current date/time via get_current_date_and_time and then compute the final target date/time using get_relative_date_and_time. "
-        "When the user mentions a weekday name without an explicit date or year, interpret it as the next upcoming occurrence of that weekday after the current date. "
-
-        " For example: "
-        "- If today is Monday 24 November 2025 and the user says “Friday” or “this Friday,” interpret it as Friday 28 November 2025. `"
-        "- If today is Tuesday 30 December 2025 and the user says “Friday,” interpret it as Friday 2 January 2026. "
-
-        "You must NEVER respond directly to the user. "
-        "Only call tools and return results to your parent. "
+        "If unable to complete a task, return to the calender_interaction_team. "
+        "Never respond directly to the user. Only call tools. "
+        "Once an instruction is complete, pass the results as structured JSON to the calender_interaction_team. "
+        "Use get_current_date_and_time for today, get_relative_date_and_time for relative times, "
+        "calculate_time_duration_hours for durations, and format_time_to_calendar for time deltas. "
+        "For natural language deltas (e.g., 'in 3 hours', 'next Tuesday'), first get current time, "
+        "then resolve relative time using get_relative_date_and_time. "
+        "Weekday names without dates refer to the next occurrence after today "
+        "(e.g., 'Friday' after Monday 24 Nov 2025 → Friday 28 Nov 2025)."
     ),
-    tools=[get_current_date_and_time, get_relative_date_and_time, math_tool, calculate_event_duration_hours]
+    tools=[
+        get_current_date_and_time, get_relative_date_and_time,
+        math_tool, calculate_time_duration_hours, format_time_to_calendar
+    ]
 )
 
 calendar_interaction_agent = Agent(
