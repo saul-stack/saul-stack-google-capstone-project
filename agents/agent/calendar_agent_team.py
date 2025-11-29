@@ -9,7 +9,7 @@ from .utils.calendar_tools import get_events, schedule_new_event, cancel_event
 
 get_events_tool = FunctionTool(get_events)
 schedule_new_event_tool = FunctionTool(schedule_new_event)
-cancel_event = FunctionTool(cancel_event)
+cancel_event_tool = FunctionTool(cancel_event)
 
 math_tool = FunctionTool(math_tool)
 
