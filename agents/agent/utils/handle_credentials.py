@@ -4,7 +4,20 @@ from google.oauth2.credentials import Credentials
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 TOKEN_PATH = os.path.join(CURRENT_DIRECTORY, "../../../setup/token.json")
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+
+def configure_scopes():
+    # Default to read-only calendar access
+    ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS = os.getenv("ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS", "false").lower() == 'true'
+
+    SCOPES = ["https://www.googleapis.com/auth/calendar"]
+
+    if ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS:
+        SCOPES = ["https://www.googleapis.com/auth/calendar"]
+    
+    return SCOPES
+
+SCOPES = configure_scopes()
+
 
 def get_creds() -> Credentials:
     """
