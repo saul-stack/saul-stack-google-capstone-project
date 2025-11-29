@@ -8,9 +8,9 @@ def get_events(start_time = None, end_time = None, max_results: int=10) -> dict:
 
     """Gets the upcoming events in the calendar
     Args:
-        max_results (int) - optional: the max number of events to fetch.
-        start_time - optional: the starting bounds for events to fetch
-        end_time - optional: the ending bounds for events to fetch
+        max_results (int) - optional: the max number of events to fetch. 
+        start_time - optional: the starting bounds for events to fetch. 
+        end_time - optional: the ending bounds for events to fetch. 
 
     Returns:
         A dictionary containing upcoming events and success message.
