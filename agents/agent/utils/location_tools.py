@@ -13,7 +13,7 @@ GEOCODING_API_KEY = os.getenv("GEOCODING_API_KEY")
 if not WEATHER_API_KEY:
     raise ValueError("Missing WEATHER_API_KEY in .env file")
 
-def get_location_from_ip() -> dict:
+def get_current_location() -> dict:
     """Get approximate location (city, lat, lon) from public IP address."""
     try:
         resp = requests.get("https://ipinfo.io/json")
@@ -27,10 +27,8 @@ def get_location_from_ip() -> dict:
             "lat": loc[0],
             "lon": loc[1]
         }
-    except Exception as e:
-        print(f"Could not determine location from IP: {e}")
-        return {"city": None, "lat": "0", "lon": "0"}
-
+    except:
+        raise ValueError(f"Could not determine location from IP")
 
 def get_coords_for_place(place: str) -> dict:
     """
