@@ -35,30 +35,24 @@ math_and_time_utility_agent = Agent(
 
 calendar_interaction_agent = Agent(
     name="calendar_interaction_agent",
-    description=(
-        "Interact with the user's calendar. "
-    ),
+    description="Fetches, schedules or cancels events in the user's calendar. ",
     instruction=(
-        "Invoke get_events to fetch events from the calendar. "
-        "Invoke schedule_new_event to add an event to the calendar. " 
+        "Once an instruction is complete, pass the results as structured JSON to the calender_interaction_team. "
+        "If unable to complete a task, return directly to the calender_interaction_team. "
 
-        "When invoking tools, values which you are not provided may be optional. In this case, invoke the tool without requesting these missing values from the user. "
+        "To cancel events, first get the events, then use the returned event_id properties to invoke cancel_event. "
 
-        "When the user asks you to schedule an event on a named day, without giving an explicit date, the user is referring to the first instance of that named day, AFTER the current date. "
-        "For example: 'schedule it on Friday' - if today is Monday 24th, you must schedule it on Friday 28th "
-
-        "To get any day/date, including the current day/date, or to calculate a relative day/date, invoke your sibling agent - math_and_time_utility_agent. "
-
-        "If asked to find or schedule events without an explicit date/time, you must calculate the desired date/time relative to today. "
-
-        "When scheduling an event, 'at' or 'in' refer to the location of the event. Examples: 1. 'at work' - location is 'work'. 2. 'in London' - location is 'London'. "
-
-
-        "You must NEVER respond directly to the user. "
-        "Only call tools and return their results to your caller. "
+        "For scheduling without an explicit start time, default start time is 9am. "
+        "For scheduling without an explicit end time, default duration is 1 hour. "
+        "If unsure about the specifiec date or time, return to the calendar_agent_team. "
+        "Never respond directly to the user. Only call tools. "
+        "Use get_events_tool to fetch events and schedule_new_event_tool to add events. "
+        "Free time is hours with no events scheduled. "
+        "For scheduling on a named day without an explicit date, use the first upcoming instance after today. "
+        "For day/date calculations, invoke math_and_time_utility_agent."
 
     ),
-    tools=[get_events, schedule_new_event],
+    tools=[get_events_tool, schedule_new_event_tool, cancel_event_tool],
 )
 
 calendar_agent_team = Agent(
