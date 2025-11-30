@@ -134,7 +134,7 @@ def schedule_new_event(params: dict) -> dict:
         return formatted_event
 
 
-    def add_event_to_calendar(event):
+    def add_event_to_calendar(event: dict) -> dict:
         try:
             creds = get_creds()
         except Exception as e:

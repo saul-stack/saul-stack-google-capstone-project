@@ -44,7 +44,7 @@ def get_current_date_and_time(utc: bool = False) -> DateTimeDict:
     result = format_to_datetime_dict(now)
     return result
 
-def get_relative_date_and_time(base_timestamp: Optional[str] = None, delta: str = None) -> DateTimeDict:
+def get_relative_date_and_time(base_timestamp: Optional[str] = None, delta: str = None) -> dict:
     """
     Calculate a date/time given a time delta relative to an optional base timestamp. Base timestamp defaults to current time if not provided
     Supports ISO 8601 durations (e.g., 'P1D', 'PT2H', 'P-1D') and natural language deltas.
@@ -97,7 +97,7 @@ def is_datetime_object(x: Any) -> bool:
     return isinstance(x, datetime.datetime)
 
 ## Formatters/parsers
-def format_time_to_calendar(timestamp:str = None) -> str:
+def format_time_to_calendar(timestamp:str) -> str:
 
     if timestamp is None:
         return None
@@ -179,7 +179,7 @@ def math_tool(expression: str) -> float:
 
     return float(result)
 
-def calculate_time_duration_hours(event):
+def calculate_time_duration_hours(event: dict):
     """
     Calculate time duration in hours from a Google Calendar–style event dict.
 
