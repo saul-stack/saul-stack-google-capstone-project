@@ -12,7 +12,7 @@ Before you begin, ensure you meet one of the following criteria:
 
 and that you have the following installed on your system:
 
-    - Python 3.13.7
+    - Python 3.14.0
   
 
 You will also need an API key for each of the following:
@@ -32,7 +32,7 @@ You will also need an API key for each of the following:
 2. Create and activate Python virtual environment
    
         $ python -m venv virtual_env
-        $ source ./venv/bin/activate
+        $ source ./virtual_env/bin/activate
    
 3. Install Python dependencies
    
