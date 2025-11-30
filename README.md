@@ -31,8 +31,8 @@ You will also need an API key for each of the following:
 
 2. Create and activate Python virtual environment
    
-        $ python -m venv venv
-        $ source venv/bin/activate
+        $ python -m venv virtual_env
+        $ source ./venv/bin/activate
    
 3. Install Python dependencies
    
