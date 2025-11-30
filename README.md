@@ -55,9 +55,7 @@ You will also need an API key for each of the following:
 
         GOOGLE_GENAI_USE_VERTEXAI=FALSE
         ALLOW_GOOGLE_CALENDAR_WRITE_ACCESS=TRUE
-        GOOGLE_API_KEY=<your-gemini-api-key>
-        WEATHER_API_KEY=<your-google-weather-api-key>
-        GEOCODING_API_KEY=<your-google-geocoding-api-key>
+        GOOGLE_API_KEY=<your-gemini-api-key>        GOOGLE_MAPS_API_KEY=<your-google-maps-api-key>
 
 
 #

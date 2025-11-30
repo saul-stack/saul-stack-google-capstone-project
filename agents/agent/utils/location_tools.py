@@ -7,11 +7,10 @@ from pathlib import Path
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-GEOCODING_API_KEY = os.getenv("GEOCODING_API_KEY")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
-if not WEATHER_API_KEY:
-    raise ValueError("Missing WEATHER_API_KEY in .env file")
+if not GOOGLE_MAPS_API_KEY:
+    raise ValueError("Missing GOOGLE_MAPS_API_KEY in .env file")
 
 def get_current_location() -> dict:
     """Get approximate location (city, lat, lon) from public IP address."""
@@ -36,14 +35,14 @@ def get_coords_for_place(place: str) -> dict:
     Raises ValueError if no valid location is found.
     """
     
-    if not GEOCODING_API_KEY:
-        raise ValueError("Missing GEOCODING_API_KEY in .env file")
+    if not GOOGLE_MAPS_API_KEY:
+        raise ValueError("Missing GOOGLE_MAPS_API_KEY in .env file")
     
     if not place:
         raise ValueError("No place name provided")
 
     url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {"address": place, "key": GEOCODING_API_KEY}
+    params = {"address": place, "key": GOOGLE_MAPS_API_KEY}
 
     resp = requests.get(url, params=params)
     resp.raise_for_status()

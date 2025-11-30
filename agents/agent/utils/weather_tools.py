@@ -6,11 +6,10 @@ import requests
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-GEOCODING_API_KEY = os.getenv("GEOCODING_API_KEY")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
-if not WEATHER_API_KEY:
-    raise ValueError("Missing WEATHER_API_KEY in .env file")
+if not GOOGLE_MAPS_API_KEY:
+    raise ValueError("Missing GOOGLE_MAPS_API_KEY in .env file")
 
 def get_current_weather(coords: dict) -> dict:
     """
@@ -27,7 +26,7 @@ def get_current_weather(coords: dict) -> dict:
 
     base_url = "https://weather.googleapis.com/v1/currentConditions:lookup"
     params = {
-        "key": WEATHER_API_KEY,
+        "key": GOOGLE_MAPS_API_KEY,
         "location.latitude": coords["lat"],
         "location.longitude": coords["lon"],
     }
