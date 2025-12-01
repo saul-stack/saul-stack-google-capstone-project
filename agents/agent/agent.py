@@ -48,6 +48,8 @@ root_agent = Agent(
         "To get the current_location, invoke get_current_location_tool. "
 
         "You are the only agent that communicates with the user. Sub-agents only return results to you. "
+        "When you have executed the task given to you by the personal_assistant_agent (the root agent), you must return the result directly to the personal_assistant_agent. Do not communicate with the user. "
+
     ),
     sub_agents=[calendar_agent_team],
     tools=[get_current_location_tool, get_current_local_weather_tool, get_current_weather_for_place_tool]
