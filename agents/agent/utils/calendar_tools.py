@@ -89,7 +89,7 @@ def schedule_new_event(params: dict) -> dict:
                 - start_datetime (str): Start date/time in ISO format or natural language
 
             Optional:
-                - end_datetime (str): End date/time, defaults to 1 hour after start
+                - end_datetime (str): Not required. End date/time, defaults to 1 hour after start
                 - location (str)
                 - description (str)
                 - recurrence (list of str)
