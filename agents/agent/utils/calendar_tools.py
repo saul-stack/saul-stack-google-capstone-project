@@ -4,16 +4,21 @@ from .handle_credentials import get_creds
 from .math_and_time_tools import format_time_to_calendar, get_current_date_and_time, get_local_timezone, get_relative_date_and_time
 import re
 
-def get_events(start_time = None, end_time = None, max_results: int=10) -> dict:
-
+def get_events(start_time=None, end_time=None, max_results: int = 10) -> dict:
     """Gets the upcoming events in the calendar
     Args:
         max_results (int) - optional: the max number of events to fetch. 
         start_time - optional: the starting bounds for events to fetch. 
         end_time - optional: the ending bounds for events to fetch. 
+        Defaults from current time to 1 week from the current time. 
+        Provide the time window to the user when you show your results, for example: 'Upcoming events from Monday Nov 5th to Thursday Nov 8th: {bullet pointed list}. '
 
     Returns:
-        A dictionary containing upcoming events and success message.
+        A dictionary containing:
+        - upcoming events
+        - start and end datetime (human-readable)
+        - status
+        - message if no events
     """
 
     try:
@@ -24,35 +29,50 @@ def get_events(start_time = None, end_time = None, max_results: int=10) -> dict:
     try:
         service = build("calendar", "v3", credentials=creds)
 
-        if start_time == None:
-            start_time = get_current_date_and_time()
-            start_time = format_time_to_calendar(start_time["time_iso"])
-
+        # Determine start_time
+        if start_time is None:
+            current_dt = get_current_date_and_time()
+            start_dt = current_dt["timestamp"]
+            start_time = format_time_to_calendar(current_dt["time_iso"])
         else:
-            start_time = format_time_to_calendar(start_time)  
+            start_dt = start_time if isinstance(start_time, datetime.datetime) else dateparser.parse(start_time)
+            start_time = format_time_to_calendar(start_dt.isoformat())
+
+        # Determine end_time
+        if end_time is None:
+            one_week_later = get_relative_date_and_time(start_dt, "P1W")
+            end_dt = one_week_later["timestamp"]
+            end_time = format_time_to_calendar(one_week_later["time_iso"])
+        else:
+            end_dt = end_time if isinstance(end_time, datetime.datetime) else dateparser.parse(end_time)
+            end_time = format_time_to_calendar(end_dt.isoformat())
 
         params = {
-        "calendarId":"primary",
-        "timeMin":start_time,
-        "maxResults": max_results,
-        "singleEvents":True,
-        "orderBy":"startTime",
+            "calendarId": "primary",
+            "timeMin": start_time,
+            "timeMax": end_time,
+            "maxResults": max_results,
+            "singleEvents": True,
+            "orderBy": "startTime",
         }
 
-        if end_time is not None:
-            params["timeMax"] = format_time_to_calendar(end_time)
-
-        events_result = (
-            service.events()
-            .list(**params)
-            .execute()
-        )
+        events_result = service.events().list(**params).execute()
         events = events_result.get("items", [])
 
         if not events:
-            return {"status": "success", "message": "No upcoming events found."}
+            return {
+                "status": "success",
+                "message": "No upcoming events found.",
+                "start_date": start_dt.strftime("%A %d %B %Y"),
+                "end_date": end_dt.strftime("%A %d %B %Y"),
+            }
 
-        return {"status": "success", "events": events}
+        return {
+            "status": "success",
+            "events": events,
+            "start_date": start_dt.strftime("%A %d %B %Y"),
+            "end_date": end_dt.strftime("%A %d %B %Y"),
+        }
 
     except HttpError as error:
         return {"status": "error", "events": f"An error occurred: {error}"}
