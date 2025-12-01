@@ -89,9 +89,9 @@ def schedule_new_event(params: dict) -> dict:
             Required:
                 - event_title (str): Title of the event
                 - start_datetime (str): Start date/time in ISO format or natural language
+                - end_datetime (str): End date/time in ISO format or natural language
 
             Optional:
-                - end_datetime (str): Not required. End date/time, defaults to 1 hour after start
                 - location (str)
                 - description (str)
                 - recurrence (list of str)
@@ -101,6 +101,15 @@ def schedule_new_event(params: dict) -> dict:
     Returns:
         dict: Response from Google Calendar API or error info.
     """
+
+
+    end_time = params.get("end_datetime")
+    if end_time == None:
+
+        return {"status": "error", "message": "Missing required end_datetime key in input dict. Set the end_datetime to an hour after the start datetime. "}
+    
+
+
 
     def format_new_event(params: dict) -> dict:
 
