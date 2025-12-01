@@ -1,10 +1,44 @@
 import math
 import datetime
-from typing import Optional, Any, TypedDict, Literal, NotRequired
+from typing import Optional, Any, TypedDict, Literal, NotRequired, Dict
 import dateparser
 import isodate
 
-## Class Definitions
+TIME_OF_DAY_RULES = {
+    "early morning": (3, 0),
+    "mid-morning": (10, 0),
+    "morning": (8, 0),
+    "early afternoon": (13, 0),
+    "afternoon": (15, 0),
+    "evening": (18, 0),
+    "night": (21, 0),
+}
+
+TIME_KEYWORDS = sorted(TIME_OF_DAY_RULES.keys(), key=len, reverse=True)
+
+def extract_date_and_time_phrase(delta: str):
+    """
+    Split a natural language delta into:
+    - a date phrase ("tomorrow", "next Tuesday")
+    - a time-of-day phrase ("morning", "evening")
+    """
+    text = delta.lower()
+
+    for key in TIME_KEYWORDS:
+        if key in text:
+            date_part = text.replace(key, "").strip()
+            return date_part, key
+
+    return text, None
+
+def apply_time_of_day(dt: datetime.datetime, tod_key: str) -> datetime.datetime:
+    """Assign the configured hour/min for the matched time-of-day descriptor."""
+    if tod_key is None:
+        return dt
+
+    hour, minute = TIME_OF_DAY_RULES[tod_key]
+    return dt.replace(hour=hour, minute=minute, second=0, microsecond=0)
+
 class ToolResult(TypedDict):
     status: Literal["success", "error"]
     message: NotRequired[str]
@@ -20,85 +54,144 @@ class DateTimeDict(TypedDict):
     month_name: str
     year: str
 
-## Agent Tools
 def get_current_date_and_time(utc: bool = False) -> DateTimeDict:
     """
-    Get the current day name, date and time with detailed metadata.
-
-    Returns a structured dictionary containing:
-    - The original timestamp as a datetime object
-    - ISO 8601 formatted string
-    - Timezone
-    - Day and year numbers
-    - Human-readable day and month names
-
-    Args:
-        utc (bool): If True, returns the current UTC time. 
-                    If False (default), returns the local timezone time.
-
-    Returns:
-        DateTimeDict: Structured dictionary with datetime metadata.
+    Get the current time with structured fields.
     """
-
     now = datetime.datetime.now(datetime.timezone.utc) if utc else datetime.datetime.now().astimezone()
-    result = format_to_datetime_dict(now)
-    return result
+    return format_to_datetime_dict(now)
 
-def get_relative_date_and_time(base_timestamp: Optional[str] = None, delta: str = None) -> dict:
+def get_relative_date_and_time(base_timestamp: Optional[str] = None, delta: str = None) -> Dict:
     """
-    Calculate a date/time given a time delta relative to an optional base timestamp. Base timestamp defaults to current time if not provided
-    Supports ISO 8601 durations (e.g., 'P1D', 'PT2H', 'P-1D') and natural language deltas.
+    Parse a natural-language or ISO-8601 time delta into a concrete datetime.
+
+    --------------------------------------------------------------
+    IMPORTANT INSTRUCTIONS FOR THE AGENT
+    --------------------------------------------------------------
+
+    1. If the delta **already contains its own date anchor**, such as:
+           "tomorrow", 
+           "next Tuesday",
+           "this Friday evening",
+           "in 3 hours",
+       then **DO NOT pass a base_timestamp**.
+       Dateparser will correctly interpret these relative expressions
+       using the current moment.
+
+    2. If the delta **does NOT contain a date anchor**, such as:
+           "afternoon",
+           "evening",
+           "morning",
+           "at 4pm",
+       then you MUST pass a base_timestamp so the function can apply
+       the time to the correct existing day.
+
+    3. Time-of-day descriptors (morning, evening, etc.) are applied by
+       *custom rules*, NOT by dateparser. The module automatically:
+           - extracts the date portion ("tomorrow")
+           - extracts the time descriptor ("morning")
+           - parses date portion normally
+           - assigns time using TIME_OF_DAY_RULES
+
+    --------------------------------------------------------------
+
+    Parameters
+    ----------
+    base_timestamp : datetime or str or None
+        A reference timestamp ONLY for deltas without their own date anchor.
+        If None is provided for such deltas, the system uses current time.
+
+    delta : str
+        Natural-language or ISO-8601 duration.
+
+    Returns
+    -------
+    dict
+        Structured DateTimeDict
     """
 
     if delta is None:
         raise ValueError("No time delta provided")
 
-    # Determine base datetime
-    if base_timestamp is None:
-        base_timestamp = get_current_date_and_time()["timestamp"]
-        if isinstance(base_timestamp, str):
-            base_timestamp = dateparser.parse(base_timestamp)
-            if base_timestamp is None:
-                raise ValueError(f"Could not parse timestamp from get_current_date_and_time(): {base_timestamp}")
+    delta_lower = delta.lower()
+    if delta_lower.startswith("p"):
+        duration = parse_iso_duration(delta)
+
+        if base_timestamp is None:
+            base_dt = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            base_dt = (
+                dateparser.parse(base_timestamp)
+                if isinstance(base_timestamp, str)
+                else base_timestamp
+            )
+
+        if base_dt.tzinfo is None:
+            base_dt = base_dt.replace(tzinfo=datetime.timezone.utc)
+
+        return format_to_datetime_dict(base_dt + duration)
+
+    date_phrase, tod_phrase = extract_date_and_time_phrase(delta)
+
+    has_self_anchor = any(
+        kw in delta_lower
+        for kw in [
+            "tomorrow", "yesterday", "today",
+            "next", "last",
+            "tonight", "this",
+            "in ",         # "in 3 hours"
+            "from now",
+        ]
+    )
+
+    if date_phrase.strip() == "" and not has_self_anchor:
+        if base_timestamp is None:
+            base_dt = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            base_dt = dateparser.parse(base_timestamp) if isinstance(base_timestamp, str) else base_timestamp
+
+        if base_dt is None or not isinstance(base_dt, datetime.datetime):
+            raise ValueError("base_timestamp must be datetime or parseable string")
+
+        if base_dt.tzinfo is None:
+            base_dt = base_dt.replace(tzinfo=datetime.timezone.utc)
+
+        parsed_dt = base_dt
+
+    elif has_self_anchor:
+        parsed_dt = dateparser.parse(date_phrase)
+
     else:
-        if not isinstance(base_timestamp, datetime.datetime):
-            base_timestamp = dateparser.parse(base_timestamp)
-            if base_timestamp is None:
-                raise ValueError(f"Could not parse base timestamp: {base_timestamp}")
+        if base_timestamp is not None:
+            base_dt = (
+                dateparser.parse(base_timestamp)
+                if isinstance(base_timestamp, str)
+                else base_timestamp
+            )
+            if base_dt.tzinfo is None:
+                base_dt = base_dt.replace(tzinfo=datetime.timezone.utc)
 
-    if base_timestamp.tzinfo is None:
-        base_timestamp = base_timestamp.replace(tzinfo=datetime.timezone.utc)
+            parsed_dt = dateparser.parse(
+                date_phrase,
+                settings={"RELATIVE_BASE": base_dt},
+            )
+        else:
+            parsed_dt = dateparser.parse(date_phrase)
 
-    # if iso_8601 time delta
-    if delta.startswith("P") or delta.startswith("p"):
-        try:
-            duration = parse_iso_duration(delta)
-            relative_timestamp = base_timestamp + duration
-        except Exception:
-            raise ValueError(f"Could not parse ISO 8601 duration: {delta}")
-    else:
-        relative_timestamp = dateparser.parse(delta, settings={"RELATIVE_BASE": base_timestamp})
-        if relative_timestamp is None:
-            raise ValueError(f"Could not parse delta: {delta}")
+    if parsed_dt is None:
+        raise ValueError(f"Could not parse date portion: '{date_phrase}'")
 
-    return format_to_datetime_dict(relative_timestamp)
+    parsed_dt = apply_time_of_day(parsed_dt, tod_phrase)
 
-## Validators
+    if parsed_dt.tzinfo is None:
+        parsed_dt = parsed_dt.replace(tzinfo=datetime.timezone.utc)
+
+    return format_to_datetime_dict(parsed_dt)
+
 def is_datetime_object(x: Any) -> bool:
-    """
-    Check if the given value is a datetime.datetime object.
-
-    Args:
-        x: Any Python variable or object.
-
-    Returns:
-        bool: True if value is a datetime.datetime object, False otherwise.
-    """
     return isinstance(x, datetime.datetime)
 
-## Formatters/parsers
-def format_time_to_calendar(timestamp:str) -> str:
-
+def format_time_to_calendar(timestamp: str) -> str:
     if timestamp is None:
         return None
 
@@ -109,15 +202,10 @@ def format_time_to_calendar(timestamp:str) -> str:
     if parsed_timestamp.tzinfo is None:
         parsed_timestamp = parsed_timestamp.replace(tzinfo=datetime.timezone.utc)
 
-    parsed_timestamp = parsed_timestamp.isoformat(timespec="microseconds").replace("+00:00", "Z")
+    return parsed_timestamp.isoformat(timespec="microseconds").replace("+00:00", "Z")
 
-    return parsed_timestamp
 
 def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
-    """
-    Converts a datetime object into a structured dictionary of relevant fields.
-    """
-
     return {
         "timestamp": timestamp,
         "time_google_calendar": format_time_to_calendar(timestamp.isoformat()),
@@ -130,10 +218,6 @@ def format_to_datetime_dict(timestamp: datetime.datetime) -> DateTimeDict:
     }
 
 def parse_iso_duration(time_delta: str) -> datetime.timedelta:
-    """
-    Parse an ISO 8601 duration string including a negative duration (e.g. P-1D).
-    Returns a datetime.timedelta.
-    """
     if not time_delta or not (time_delta.startswith("P") or time_delta.startswith("p")):
         raise ValueError("Not an ISO 8601 duration")
 
@@ -146,48 +230,17 @@ def parse_iso_duration(time_delta: str) -> datetime.timedelta:
     duration = isodate.parse_duration(time_delta)
 
     if not isinstance(duration, datetime.timedelta):
-        duration = datetime.timedelta(
-            days=duration.days,
-            seconds=duration.totalseconds() % 86400
-        )
+        duration = datetime.timedelta(days=duration.days, seconds=duration.totalseconds() % 86400)
 
-    if delta_is_negative:
-        duration = -duration
+    return -duration if delta_is_negative else duration
 
-    return duration
-
-## Other Utilities
 def math_tool(expression: str) -> float:
-
-    """
-    Safely evaluates a mathematical expression using Python.
-    Only allows: numbers, + - * / **, parentheses, and math module functions.
-    """
-
-    #   Allow math functions
-    allowed_math_functions = {
-        name: value
-        for name, value in math.__dict__.items()
-        if not name.startswith("__")
-    }
-
-    #   Block Python built-in functions
+    allowed_math_functions = {name: value for name, value in math.__dict__.items() if not name.startswith("__")}
     blocked_builtins = {"__builtins__": {}}
+    return float(eval(expression, blocked_builtins, allowed_math_functions))
 
-    #   Evaluate expression, blocking builtins
-    result = eval(expression, blocked_builtins, allowed_math_functions)
-
-    return float(result)
 
 def calculate_time_duration_hours(event: dict):
-    """
-    Calculate time duration in hours from a Google Calendar–style event dict.
-
-    Returns:
-        float: duration in hours (e.g., 1.5)
-        None: if invalid or missing timestamps
-    """
-
     try:
         start_str = event["start"]["dateTime"]
         end_str = event["end"]["dateTime"]
@@ -197,14 +250,11 @@ def calculate_time_duration_hours(event: dict):
     try:
         start_dt = datetime.datetime.fromisoformat(start_str)
         end_dt = datetime.datetime.fromisoformat(end_str)
-        
     except ValueError:
         return None
 
-    duration = end_dt - start_dt
-    duration_hours = duration.total_seconds() / 3600.0
+    return (end_dt - start_dt).total_seconds() / 3600.0
 
-    return duration_hours
 
 def get_local_timezone() -> str:
     return datetime.datetime.now().astimezone().tzname() or "UTC"
