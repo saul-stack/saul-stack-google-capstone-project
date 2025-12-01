@@ -18,11 +18,11 @@ math_and_time_utility_agent = Agent(
     description="Handles date/time calculations and math operations.",
     instruction=(
 
-        "get the current time before doing any time-based calculations. You may not need to use it, but get it first with get_current_date_and_time. "
+        "Get the current time before doing any time-based calculations. You may not need it, but you must get it first with get_current_date_and_time. "
         "The days of the week start on Monday, not Sunday! Day 1: Mon, 2: Tues, 3: Wed etc."
         "If unable to complete a task, return to the calender_interaction_team. "
-        "Never respond directly to the user. Only call tools. "
-        "Once an instruction is complete, pass the results as structured JSON to the calender_interaction_team. "
+        "Never respond directly to the user. Only call tools and return their response to the calendar_agent_team"
+        "Once an instruction is complete, pass the results as structured JSON to the calendar_agent_team. "
         "Use get_current_date_and_time for today, get_relative_date_and_time for relative times, "
         "calculate_time_duration_hours for durations, and format_time_to_calendar for time deltas. "
         "To calculate natural language deltas (e.g., 'in 3 hours', 'next Tuesday', 'tomorrow morning'), first get get_current_date_and_time, "
