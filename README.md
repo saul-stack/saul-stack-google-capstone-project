@@ -33,7 +33,7 @@ You will also need an API key for each of the following:
 
 1. Navigate to root directory 
    
-        $ cd google-capstone-project
+        $ cd saul-stack-google-capstone-project
 
 2. Create and activate Python virtual environment
    
@@ -51,7 +51,7 @@ You will also need an API key for each of the following:
 
 1. Navigate to project root directory 
 
-        $ cd google-capstone-project
+        $ cd saul-stack-google-capstone-project
 
 2. Create environment file
    
@@ -72,7 +72,7 @@ You will also need an API key for each of the following:
 #### Testing with a registered Google account:
 
 
-1. Copy `credentials.json` to google-capstone-project/setup/
+1. Copy `credentials.json` to saul-stack-google-capstone-project/setup/
 
 
 3. Add the following line to `.env`: 
@@ -86,7 +86,7 @@ You will also need an API key for each of the following:
 
 #### Testing with a service account: 
 
-1. Copy `test-credentials.json` to google-capstone-project/setup/
+1. Copy `test-credentials.json` to saul-stack-google-capstone-project/setup/
 2. add the following line to .env: 
 
         USE_SERVICE_ACCOUNT=TRUE
@@ -96,6 +96,6 @@ This authenticates each calendar request using a service account instead of user
 
 ## Running the application
 
-        $ cd google-capstone-project/agents
+        $ cd saul-stack-google-capstone-project/agents
         $ adk web
 
