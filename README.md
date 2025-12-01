@@ -63,7 +63,6 @@ You will also need an API key for each of the following:
 ### Authorizing Google Calendar API
 
 
-
 #### Testing with a registered Google account:
 
 
@@ -88,4 +87,9 @@ You will also need an API key for each of the following:
 
 
 This authenticates each calendar request using a service account instead of user OAuth.
+
+## Running the application
+
+        $ cd google-capstone-project/agents
+        $ adk web
 
