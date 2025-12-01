@@ -17,15 +17,33 @@ math_and_time_utility_agent = Agent(
     name="math_and_time_utility_agent",
     description="Handles date/time calculations and math operations.",
     instruction=(
+
+        "get the current time before doing any time-based calculations. You may not need to use it, but get it first with get_current_date_and_time. "
+        "The days of the week start on Monday, not Sunday! Day 1: Mon, 2: Tues, 3: Wed etc."
         "If unable to complete a task, return to the calender_interaction_team. "
         "Never respond directly to the user. Only call tools. "
         "Once an instruction is complete, pass the results as structured JSON to the calender_interaction_team. "
         "Use get_current_date_and_time for today, get_relative_date_and_time for relative times, "
         "calculate_time_duration_hours for durations, and format_time_to_calendar for time deltas. "
-        "For natural language deltas (e.g., 'in 3 hours', 'next Tuesday'), first get current time, "
-        "then resolve relative time using get_relative_date_and_time. "
+        "To calculate natural language deltas (e.g., 'in 3 hours', 'next Tuesday', 'tomorrow morning'), first get get_current_date_and_time, "
+        "then resolve the time delta using get_relative_date_and_time. "
+        "To understand what is meant by 'early', 'mid-morning', 'late' and any other abstract or vague terms, invoke get_relative_date_and_time. "
         "Weekday names without dates refer to the next occurrence after today "
         "(e.g., 'Friday' after Monday 24 Nov 2025 → Friday 28 Nov 2025)."
+        "'Last Friday' etc. refers to the previous occurance of that day name before the current date. "
+        "'This week', 'this month', 'this year' usually refer to the time period from now until the start of the next one (exclusive). For example: 'This week' usually means from now until midnight on this soonest coming Sunday. Ask for clarification if unsure. "
+        "early morning: 00:00-06:00 ,"
+        "mid-morning: 10:00 ,"
+        "morning: 00:00-12:00 ,"
+        "early afternoon: 12:00-14:30 ,"
+        "afternoon: 12:00-17:00 ,"
+        "evening: 17:00-20:00 ,"
+        "night: 19:00-24:00 ,"
+        "Use these ranges to calculate a datetime if the user provides a phrase like"
+        "'next Tuesday evening'. Always pick the midpoint of the range unless otherwise specified."
+
+        "YOU **** MUST NEVER **** INTERACT WITH THE USER!! DO NOT INTERRUPT THE FLOW OF AGENTS. WHEN YOU HAVE A RETURN FROM ANY FUNCTION, INFORM THE AGENT ABOVE YOU. "
+
     ),
     tools=[
         get_current_date_and_time, get_relative_date_and_time,
@@ -44,13 +62,19 @@ calendar_interaction_agent = Agent(
 
         "For scheduling without an explicit start time, default start time is 9am. "
         "For scheduling without an explicit end time, default duration is 1 hour. "
+
+        "To resolve any natural language deltas or times you must invoke the math_and_time_utility_agent. "
+        "For scheduling an event with a vague timeframe, such as 'Monday Evening', 'tomorrow morning', 'the evening', you should first resolve the current time, then resolve the meaning of the vague time you were provided. You must then check for events in that period. You must then suggest a time to the user, within a range of time with no events scheduled.. "
         "If unsure about the specifiec date or time, return to the calendar_agent_team. "
         "Never respond directly to the user. Only call tools. "
         "Use get_events_tool to fetch events and schedule_new_event_tool to add events. "
-        "Free time is hours with no events scheduled. "
+        "Free time is total hours with no events scheduled. "
         "For scheduling on a named day without an explicit date, use the first upcoming instance after today. "
-        "For day/date calculations, invoke math_and_time_utility_agent."
+        "For day/date calculations, invoke math_and_time_utility_agent. "
+        "If asked any command or question with a natural language or ISO 8601 duration ('P1D', 'next Tuesday', 'Monday last', 'A week tomorrow', '2 days before' etc.), first resolve the target date/time by invoking the math_and_time_utility_agent before continuing. "
+        "Always assume the user refers to a date in the future when scheduling events. Never schedule an event for a day previous to the current day. "
 
+        "YOU **** MUST NEVER **** INTERACT WITH THE USER!! DO NOT INTERRUPT THE FLOW OF AGENTS. WHEN YOU HAVE A RETURN FROM ANY FUNCTION, INFORM THE AGENT ABOVE YOU. "
     ),
     tools=[get_events_tool, schedule_new_event_tool, cancel_event_tool],
 )
