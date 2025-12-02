@@ -1,9 +1,7 @@
 # A.I Calendar Assistant Project
 
-
-## Please read Write-Up for more detail, including agent architecture diagrams
-
-[View the full project report (PDF)](Write-Up-1-12-25.pdf)
+### ... Please note that this project is a work in progress ...
+[Read Write-Up for more detail, including agent architecture diagrams (PDF)](Write-Up-1-12-25.pdf)
 
 
 ## Setup
